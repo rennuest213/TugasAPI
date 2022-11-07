@@ -1,22 +1,31 @@
 ﻿using API.Context;
 using API.Repository.Data;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 
 namespace API.Controllers
 {
-    [Route("api/[controller]")]
+    [Authorize]
+    [Route("api/akun")]
     [ApiController]
     public class AccountController : Controller
     {
         private UserRepository _repository;
+        public IConfiguration _configuration;
 
-        public AccountController(UserRepository repository)
+        public AccountController(UserRepository repository, IConfiguration configuration)
         {
             _repository = repository;
+            _configuration = configuration;
         }
 
         [HttpGet]
+        [AllowAnonymous]
         public IActionResult Login(string email, string password)
         {
 
@@ -34,7 +43,7 @@ namespace API.Controllers
                 }
                 else
                 {
-                    return Ok(new
+                    /*return Ok(new
                     {
                         StatusCode = 200,
                         Message = "Login Berhasil!",
@@ -44,7 +53,28 @@ namespace API.Controllers
                             data.Employee.FullName,
                             data.Role.Name
                         }
-                    });
+                    });*/
+                    var claims = new[]
+                    {
+                        new Claim(JwtRegisteredClaimNames.Sub, _configuration["Jwt:Subject"]),
+                        new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                        new Claim(JwtRegisteredClaimNames.Iat, DateTime.UtcNow.ToString()),
+                        new Claim("UserId", data.Id.ToString()),
+                        new Claim("FullName", data.Employee.FullName),
+                        new Claim("RoleName", data.Role.Name),
+                        new Claim("Email", data.Employee.Email)
+                    };
+
+                    var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"]));
+                    var signIn = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+                    var token = new JwtSecurityToken(
+                        _configuration["Jwt:Issuer"],
+                        _configuration["Jwt:Audience"],
+                        claims,
+                        expires: DateTime.UtcNow.AddMinutes(10),
+                        signingCredentials: signIn);
+
+                    return Ok(new JwtSecurityTokenHandler().WriteToken(token));
                 }
             }
             catch (Exception ex)
