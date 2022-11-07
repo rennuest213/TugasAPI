@@ -1,9 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "gVSmgtbJpzfkw9mG/xrKtJJ/FLtfTxC6Bmch58aJlsmZYNM1zpU3+0f0vCekYBYgRphZEyX0aKj03Wm9P3BlYA==",
+  "dgSpecHash": "J+OwitGr+yJJJBBGS3VvmJ6vbER1EV74XXxY3xQHzWuMoWt4dYjnMezt8RLDWFtBdq6idWrOuV1Y9nmS+LBYpw==",
   "success": true,
   "projectFilePath": "C:\\Nguli Onlen\\Latihan C Sharp\\API\\API.csproj",
   "expectedPackageFiles": [
+    "C:\\Users\\HP\\.nuget\\packages\\bcrypt.net-core\\1.6.0\\bcrypt.net-core.1.6.0.nupkg.sha512",
     "C:\\Users\\HP\\.nuget\\packages\\castle.core\\4.4.1\\castle.core.4.4.1.nupkg.sha512",
     "C:\\Users\\HP\\.nuget\\packages\\humanizer.core\\2.8.26\\humanizer.core.2.8.26.nupkg.sha512",
     "C:\\Users\\HP\\.nuget\\packages\\messagepack\\2.1.152\\messagepack.2.1.152.nupkg.sha512",

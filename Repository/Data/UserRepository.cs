@@ -1,4 +1,5 @@
 ﻿using API.Context;
+using API.Handlers;
 using API.Models;
 using API.Repository.Interface;
 using Microsoft.AspNetCore.Mvc;
@@ -20,9 +21,16 @@ namespace API.Repository.Data
             var data = _context.Users
                 .Include(x => x.Employee)
                 .Include(x => x.Role)
-                .SingleOrDefault(x => x.Employee.Email.Equals(username) && x.Password.Equals(password));
+                .SingleOrDefault(x => x.Employee.Email.Equals(username));
 
-            return data;
+            var valPassword = Hashing.ValidatePassword(password, data.Password);
+
+            if (data != null && valPassword)
+            {
+                return data;
+            }
+
+            return null;
         }
 
         public int Register(string fullname, string email, DateTime birthday, string password)
@@ -47,7 +55,7 @@ namespace API.Repository.Data
                     User user = new User()
                     {
                         Id = id,
-                        Password = password,
+                        Password = Hashing.HashPassword(password),
                         RoleId = 3
                     };
                     _context.Users.Add(user);
@@ -84,7 +92,7 @@ namespace API.Repository.Data
                 User user = new User()
                 {
                     Id = data.UserId,
-                    Password = ConfirmPassword,
+                    Password = Hashing.HashPassword(ConfirmPassword),
                     RoleId = data.RoleId
                 };
 
@@ -97,7 +105,7 @@ namespace API.Repository.Data
             return 0;
         }
 
-        public int ForgotPassword(string email, string newPassword)
+        public int ForgotPassword(string email, string fullName,string newPassword)
         {
             var data = _context.Users
                 .Join(_context.Employees, u => u.Id, emp => emp.Id, (u, emp) => new { u, emp })
@@ -107,9 +115,10 @@ namespace API.Repository.Data
                     Password = ur.u.Password,
                     RoleId = ur.u.RoleId,
                     UserId = ur.u.Id,
-                    EmployeeId = ur.u.Id
+                    EmployeeId = ur.u.Id,
+                    FullName = ur.emp.FullName
                 })
-                .SingleOrDefault(x => x.Email.Equals(email));
+                .SingleOrDefault(x => x.Email.Equals(email) && x.FullName.Equals(fullName));
 
             if (data != null)
             {
@@ -117,7 +126,7 @@ namespace API.Repository.Data
                 User user = new()
                 {
                     Id = data.UserId,
-                    Password = newPassword,
+                    Password = Hashing.HashPassword(newPassword),
                     RoleId = data.RoleId,
                 };
 

@@ -126,11 +126,11 @@ namespace API.Controllers
         }
 
         [HttpPut("{ForgotPassword}")]
-        public IActionResult ForgotPassword(string email, string newPassword)
+        public IActionResult ForgotPassword(string email, string fullName, string newPassword)
         {
             try
             {
-                var data = _repository.ForgotPassword(email, newPassword);
+                var data = _repository.ForgotPassword(email, fullName, newPassword);
                 if (data == 0)
                 {
                     return Ok(new
